@@ -81,6 +81,48 @@ func decodePGN(pgn string) (*Game, error) {
 	return g, nil
 }
 
+func GamesGamesFromPGNToChannelFromPGN(r io.Reader, gamesChannel chan *Game) error {
+	current := ""
+	count := 0
+	totalCount := 0
+	br := bufio.NewReader(r)
+	flagNotEmptyString := false
+	for {
+		line, err := br.ReadString('\n')
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
+		if strings.TrimSpace(line) == "" {
+			if flagNotEmptyString {
+				count++
+			}
+		} else {
+			current += line
+			flagNotEmptyString = true
+		}
+		if count == 2 {
+			game, err := decodePGN(current)
+			if err != nil {
+				log.Printf("Error decodePGN %d\n", totalCount)
+				log.Printf("PGN %s\n", current)
+				//return nil, err
+			} else {
+				gamesChannel <- game
+			}
+
+			count = 0
+			current = ""
+			flagNotEmptyString = false
+
+			totalCount++
+			//			log.Println("Processed game", totalCount)
+		}
+	}
+	return nil
+}
+
 func encodePGN(g *Game) string {
 	s := ""
 	for _, tag := range g.tagPairs {
