@@ -81,7 +81,7 @@ func decodePGN(pgn string) (*Game, error) {
 	return g, nil
 }
 
-func GamesGamesFromPGNToChannelFromPGN(r io.Reader, gamesChannel chan *Game) error {
+func GamesFromPGNToChannel(r io.Reader, gamesChannel chan *Game) error {
 	current := ""
 	count := 0
 	totalCount := 0
